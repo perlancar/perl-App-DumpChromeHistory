@@ -31,7 +31,7 @@ _
         },
         copy_size_limit => {
             schema => 'posint*',
-            default => 40*1024*1024,
+            default => 100*1024*1024,
             description => <<'_',
 
 Chrome often locks the History database for a long time. If the size of the
