@@ -1,11 +1,14 @@
 package App::DumpChromeHistory;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
 use strict;
 use warnings;
+use Log::ger;
 
 our %SPEC;
 
@@ -85,13 +88,18 @@ sub dump_chrome_history {
             }
         };
         my $err = $@;
-        if ($err && $err =~ /database is locked/ && (-s $hist_path) <= $args{copy_size_limit}) {
-            require File::Copy;
-            require File::Temp;
-            my ($temp_fh, $temp_path) = File::Temp::tempfile();
-            File::Copy::copy($hist_path, $temp_path) or die $err;
-            $hist_path = $temp_path;
-            redo SELECT;
+        if ($err && $err =~ /database is locked/) {
+            if ((-s $hist_path) <= $args{copy_size_limit}) {
+                log_debug "Database is locked ($err), will try to copy and query the copy instead ...";
+                require File::Copy;
+                require File::Temp;
+                my ($temp_fh, $temp_path) = File::Temp::tempfile();
+                File::Copy::copy($hist_path, $temp_path) or die $err;
+                $hist_path = $temp_path;
+                redo SELECT;
+            } else {
+                log_debug "Database is locked ($err) but is too big, will wait instead";
+            }
         }
     }
 
