@@ -53,10 +53,16 @@ sub dump_chrome_history {
 
     my %args = @_;
 
+    my $app = $args{_app} // 'Google Chrome';
+    my $chrome_dir = $args{_chrome_dir};
+
     # list all available firefox profiles
     my $available_profiles;
     {
-        my $res = Chrome::Util::Profile::list_chrome_profiles(detail=>1);
+        my $res = Chrome::Util::Profile::list_chrome_profiles(
+            _chrome_dir => $chrome_dir,
+            detail => 1,
+        );
         return $res unless $res->[0] == 200;
         $available_profiles = $res->[2];
     }
